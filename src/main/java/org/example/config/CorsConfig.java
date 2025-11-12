@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Configuración de CORS para permitir peticiones desde diferentes orígenes.
- * Esto es necesario para que Swagger UI funcione correctamente.
+ * Necesario para que Swagger UI funcione correctamente en producción.
  */
 @Configuration
 public class CorsConfig {
@@ -18,10 +18,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns("*")
+                        .allowedOriginPatterns("*")  // Usar allowedOriginPatterns en lugar de allowedOrigins
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
                         .allowedHeaders("*")
-                        .allowCredentials(true)
+                        .exposedHeaders("*")
+                        .allowCredentials(false)  // Cambiar a false
                         .maxAge(3600);
             }
         };
