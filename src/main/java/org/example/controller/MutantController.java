@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Mutant Detector", description = "API para detección de mutantes mediante análisis de ADN")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 
 public class MutantController {
 
