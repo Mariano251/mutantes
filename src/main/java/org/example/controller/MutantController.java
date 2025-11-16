@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.AnalysisResult;
 import org.example.dto.DnaRequest;
 import org.example.dto.ErrorResponse;
 import org.example.dto.StatsResponse;
@@ -31,8 +32,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Mutant Detector", description = "API para detección de mutantes mediante análisis de ADN")
-//@CrossOrigin(origins = "*", allowedHeaders = "*")
-
 public class MutantController {
 
     private final MutantService mutantService;
@@ -49,12 +48,12 @@ public class MutantController {
      * }
      *
      * Respuestas:
-     * - 200 OK: Es mutante (sin body)
-     * - 403 Forbidden: No es mutante (sin body)
+     * - 200 OK: Es mutante (con AnalysisResult)
+     * - 403 Forbidden: No es mutante (con AnalysisResult)
      * - 400 Bad Request: DNA inválido (con ErrorResponse)
      *
      * @param request DnaRequest con la secuencia de ADN
-     * @return ResponseEntity sin body, solo código HTTP
+     * @return ResponseEntity con AnalysisResult
      */
     @PostMapping("/mutant")
     @Operation(
@@ -66,11 +65,19 @@ public class MutantController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "El ADN corresponde a un mutante"
+                    description = "El ADN corresponde a un mutante",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AnalysisResult.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "El ADN corresponde a un humano (no mutante)"
+                    description = "El ADN corresponde a un humano (no mutante)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AnalysisResult.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -81,13 +88,11 @@ public class MutantController {
                     )
             )
     })
-    public ResponseEntity<Void> checkMutant(@Valid @RequestBody DnaRequest request) {
-        boolean isMutant = mutantService.analyzeDna(request.getDna());
-
-        if (isMutant) {
-            return ResponseEntity.ok().build(); // 200 OK
+    public ResponseEntity<AnalysisResult> checkMutant(@Valid @RequestBody DnaRequest request) {
+        if (mutantService.analyzeDna(request.getDna())) {
+            return ResponseEntity.ok(new AnalysisResult("mutant"));
         } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new AnalysisResult("human"));
         }
     }
 
