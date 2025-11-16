@@ -10,9 +10,28 @@ API REST para detectar si un humano es mutante basándose en su secuencia de ADN
 
 ---
 
+## 🌐 Demo en Vivo - TOTALMENTE FUNCIONAL
+
+🚀 **API desplegada en Render:**
+
+**Base URL:** [https://mutantes-api-v2.onrender.com](https://mutantes-api-v2.onrender.com)
+
+**Swagger UI:** [https://mutantes-api-v2.onrender.com/swagger-ui.html](https://mutantes-api-v2.onrender.com/swagger-ui.html)
+
+✅ **Función "Try it out" completamente operativa**
+
+**Endpoints disponibles:**
+- `POST /mutant` - Verificar si un ADN es mutante
+- `GET /stats` - Obtener estadísticas de verificaciones
+
+⚠️ **Nota:** El servicio puede tardar 30-60 segundos en despertar si no se ha usado recientemente (plan gratuito de Render).
+
+---
+
 ## 📋 Tabla de Contenidos
 
 - [Descripción](#-descripción)
+- [Demo en Vivo](#-demo-en-vivo)
 - [Características](#-características)
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación y Ejecución](#-instalación-y-ejecución)
@@ -23,24 +42,26 @@ API REST para detectar si un humano es mutante basándose en su secuencia de ADN
 - [Análisis de Eficiencia](#-análisis-de-eficiencia)
 - [Cobertura de Código](#-cobertura-de-código)
 - [Arquitectura](#-arquitectura)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Tecnologías](#-tecnologías)
 - [Ejemplos de Uso](#-ejemplos-de-uso)
+- [Deploy en Render](#-deploy-en-render)
 
 ---
 
 ## 🧬 Descripción
 
 Este proyecto implementa una API REST que analiza secuencias de ADN para determinar si un humano es mutante. Un humano es considerado mutante si se encuentran **más de una secuencia** de cuatro letras iguales (A, T, C, G) de forma:
-- Horizontal
-- Vertical
-- Diagonal (ambas direcciones)
+- Horizontal (→)
+- Vertical (↓)
+- Diagonal (↘ ↙)
 
 ### Ejemplo de ADN Mutante:
 ```
 A T G C G A
 C A G T G C
 T T A T G T
-A G A A G G
+A G A A G G  ← Secuencia horizontal
 C C C C T A  ← Secuencia horizontal
 T C A C T G
 ```
@@ -55,9 +76,10 @@ T C A C T G
 - ✅ **Estadísticas** de verificaciones realizadas
 - ✅ **37 Tests unitarios** con 100% de éxito
 - ✅ **58% de cobertura** (94% en capa de servicio)
-- ✅ **Documentación Swagger** interactiva
+- ✅ **Documentación Swagger** interactiva y funcional
 - ✅ **Análisis de métricas** de performance
 - ✅ **Deduplicación** de registros por hash
+- ✅ **Desplegado en Render** con HTTPS
 
 ---
 
@@ -73,7 +95,7 @@ T C A C T G
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone https://github.com/tu-usuario/mutantes.git
+git clone https://github.com/Mariano251/mutantes.git
 cd mutantes
 ```
 
@@ -94,13 +116,7 @@ La aplicación estará disponible en: **http://localhost:8080**
 ./gradlew test
 ```
 
-### 5. Ver Reporte de Tests
-```bash
-./gradlew test
-# Abrir: build/reports/tests/test/index.html
-```
-
-### 6. Ver Reporte de Cobertura
+### 5. Ver Reporte de Cobertura
 ```bash
 ./gradlew test jacocoTestReport
 # Abrir: build/reports/jacoco/test/html/index.html
@@ -121,18 +137,33 @@ Verifica si un ADN corresponde a un mutante.
 ```
 
 **Responses:**
-- `200 OK` - Es mutante (sin body)
-- `403 Forbidden` - Es humano (sin body)
-- `400 Bad Request` - ADN inválido
+
+**200 OK** - Es mutante:
 ```json
 {
-  "timestamp": "2025-11-11T15:30:00",
+  "result": "mutant"
+}
+```
+
+**403 Forbidden** - Es humano:
+```json
+{
+  "result": "human"
+}
+```
+
+**400 Bad Request** - ADN inválido:
+```json
+{
+  "timestamp": "2025-11-16T15:30:00",
   "status": 400,
   "error": "Bad Request",
   "message": "Invalid DNA sequence: must be a square NxN matrix (minimum 4x4) with only A, T, C, G characters",
   "path": "/mutant"
 }
 ```
+
+---
 
 ### **GET /stats**
 Obtiene estadísticas de las verificaciones de ADN.
@@ -152,19 +183,18 @@ Obtiene estadísticas de las verificaciones de ADN.
 
 La documentación interactiva de la API está disponible en:
 
+### **🌐 Producción (Render):**
+**URL:** [https://mutantes-api-v2.onrender.com/swagger-ui.html](https://mutantes-api-v2.onrender.com/swagger-ui.html)
+
+### **💻 Local:**
 **URL:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ### Características de Swagger:
 - ✅ Documentación completa de endpoints
 - ✅ Ejemplos de requests/responses
-- ✅ Pruebas interactivas (Try it out)
+- ✅ **Función "Try it out" completamente operativa**
 - ✅ Modelos de datos documentados
 - ✅ Códigos de estado HTTP explicados
-
-### Capturas de Swagger:
-- **Endpoint POST /mutant**: Documentado con ejemplos
-- **Endpoint GET /stats**: Documentado con estructura de respuesta
-- **Schemas**: DnaRequest, StatsResponse, ErrorResponse
 
 ---
 
@@ -172,39 +202,38 @@ La documentación interactiva de la API está disponible en:
 
 La aplicación usa **H2 Database** en memoria para persistir los registros.
 
-### **Acceder a H2 Console:**
+### **Acceder a H2 Console (Local):**
 
 1. **URL:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
 
 2. **Credenciales:**
-    - **JDBC URL:** `jdbc:h2:mem:testdb`
-    - **User Name:** `sa`
-    - **Password:** *(dejar vacío)*
+   - **JDBC URL:** `jdbc:h2:mem:testdb`
+   - **User Name:** `sa`
+   - **Password:** *(dejar vacío)*
 
 3. **Click en:** `Connect`
 
 ### **Queries Útiles:**
-
 ```sql
 -- Ver todos los registros
-SELECT * FROM DNA_RECORDS;
+SELECT * FROM DNA_RECORD;
 
 -- Contar mutantes
-SELECT COUNT(*) FROM DNA_RECORDS WHERE IS_MUTANT = true;
+SELECT COUNT(*) FROM DNA_RECORD WHERE IS_MUTANT = true;
 
 -- Contar humanos
-SELECT COUNT(*) FROM DNA_RECORDS WHERE IS_MUTANT = false;
+SELECT COUNT(*) FROM DNA_RECORD WHERE IS_MUTANT = false;
 
 -- Ver últimos 10 registros
-SELECT * FROM DNA_RECORDS ORDER BY CREATED_AT DESC LIMIT 10;
+SELECT * FROM DNA_RECORD ORDER BY CREATED_AT DESC LIMIT 10;
 
--- Calcular ratio manualmente
+-- Calcular ratio
 SELECT 
     SUM(CASE WHEN IS_MUTANT = TRUE THEN 1 ELSE 0 END) AS mutantes,
     SUM(CASE WHEN IS_MUTANT = FALSE THEN 1 ELSE 0 END) AS humanos,
     CAST(SUM(CASE WHEN IS_MUTANT = TRUE THEN 1 ELSE 0 END) AS DOUBLE) / 
     CAST(SUM(CASE WHEN IS_MUTANT = FALSE THEN 1 ELSE 0 END) AS DOUBLE) AS ratio
-FROM DNA_RECORDS;
+FROM DNA_RECORD;
 ```
 
 ### **Estructura de la Tabla:**
@@ -215,10 +244,6 @@ FROM DNA_RECORDS;
 | `DNA_HASH` | VARCHAR(64) | Hash SHA-256 único del ADN |
 | `IS_MUTANT` | BOOLEAN | true si es mutante, false si es humano |
 | `CREATED_AT` | TIMESTAMP | Fecha y hora de creación |
-
-### **Índices:**
-- `idx_dna_hash`: Índice único en DNA_HASH (búsquedas O(1))
-- `idx_is_mutant`: Índice en IS_MUTANT (conteos O(1))
 
 ---
 
@@ -231,15 +256,6 @@ El proyecto incluye **37 tests unitarios** con **100% de éxito**.
 ./gradlew test
 ```
 
-### **Ver Reporte HTML:**
-```bash
-# Ejecutar tests
-./gradlew test
-
-# Abrir en navegador
-start build/reports/tests/test/index.html
-```
-
 ### **Distribución de Tests:**
 
 #### **MutantDetectorTest (17 tests):**
@@ -249,200 +265,172 @@ start build/reports/tests/test/index.html
 - ✅ Detección de múltiples secuencias
 - ✅ Casos edge: matrices mínimas (4x4)
 - ✅ Matrices grandes (100x100, 1000x1000)
-- ✅ Casos de humanos (sin secuencias)
-- ✅ Early termination
 
 #### **MutantServiceTest (5 tests):**
 - ✅ Verificación y persistencia de mutantes
 - ✅ Verificación y persistencia de humanos
 - ✅ Deduplicación por hash
-- ✅ Validación de DNA inválido
-- ✅ Cálculo correcto de hash SHA-256
 
 #### **StatsServiceTest (6 tests):**
 - ✅ Estadísticas sin registros
-- ✅ Estadísticas solo con mutantes
-- ✅ Estadísticas solo con humanos
 - ✅ Cálculo correcto de ratio
-- ✅ División por cero manejada
 
 #### **MutantControllerTest (8 tests):**
 - ✅ POST /mutant retorna 200 para mutantes
 - ✅ POST /mutant retorna 403 para humanos
-- ✅ POST /mutant retorna 400 para DNA inválido
 - ✅ GET /stats retorna JSON correcto
-- ✅ Content-Type application/json
-- ✅ Validación de estructura JSON
 
 #### **AlgorithmMetricsTest (1 test):**
 - ✅ Análisis completo de 5 métricas de performance
 
 ### **Resultados:**
 ```
-Test Summary
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-37 tests
+37 tests ✅
 0 failures
 0 ignored
 100% successful
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---
 
 ## ⚡ Análisis de Eficiencia
 
-El proyecto incluye un **programa automatizado** para medir la eficiencia del algoritmo.
-
-### **Ejecutar Análisis de Métricas:**
-```bash
-./gradlew test --tests AlgorithmMetricsTest
-```
-
-### **5 Métricas Analizadas:**
-
-#### **1. Tiempos de Ejecución por Tamaño**
-```
-Tamaño       Tiempo Avg (ms)    Tiempo Min (ms)    Tiempo Max (ms)
-----------------------------------------------------------------
-6x6          0.010              0.004              0.078
-10x10        0.012              0.002              0.075
-50x50        0.061              0.034              0.226
-100x100      0.094              0.018              0.388
-500x500      0.533              0.431              0.897
-1000x1000    1.842              1.542              3.734
-```
-
-#### **2. Análisis de Escalabilidad**
-```
-Tamaño       Tiempo (ms)        Factor Crecimiento     Complejidad
-----------------------------------------------------------------
-10x10        0.001              -                      -
-20x20        0.002              1.00x                  < O(N^2)
-40x40        0.005              4.00x                  ~= O(N^2)
-80x80        0.011              2.75x                  < O(N^2)
-160x160      0.050              4.45x                  ~= O(N^2)
-320x320      0.189              3.86x                  ~= O(N^2)
-```
-**Conclusión:** Complejidad medida ~= O(N²) (coincide con análisis teórico)
-
-#### **3. Efectividad del Early Termination**
-```
-Matriz: 100x100 (Promedio de 1000 iteraciones)
-  - DNA Mutante (con early term): 0.018 ms
-  - DNA Humano (sin early term):  0.017 ms
-  - Mejora con early termination: -1.6%
-```
-**Nota:** En matrices aleatorias la mejora es mínima. En casos reales mejora ~70-80%.
-
-#### **4. Throughput (Operaciones por Segundo)**
-```
-Tamaño       Ops/seg                Tiempo/Op (us)
-----------------------------------------------------------------
-6x6          4,457,029              0.2
-50x50        206,195                4.8
-100x100      53,931                 18.5
-```
-**Conclusión:** >4 millones de operaciones/segundo en matrices pequeñas
-
-#### **5. Análisis Estadístico (100x100)**
-```
-Iteraciones: 1000
-  - Media:              0.024 ms
-  - Mediana (P50):      0.021 ms
-  - Minimo:             0.016 ms
-  - Maximo:             0.178 ms
-  - Desv. Estandar:     0.011 ms
-  - Percentil 95:       0.042 ms
-  - Percentil 99:       0.068 ms
-```
-**Conclusión:** Muy consistente, baja variabilidad
-
 ### **Complejidad del Algoritmo:**
 
 **Temporal:**
 - **Peor caso:** O(N²) - Debe recorrer toda la matriz
-- **Caso promedio:** O(N) - Early termination detiene tras encontrar 2 secuencias
+- **Caso promedio:** O(N) - Early termination tras encontrar 2 secuencias
 - **Mejor caso:** O(1) - Encuentra 2 secuencias al inicio
 
-**Espacial:**
-- O(N) para conversión a `char[][]`
-- O(1) adicional (solo variables locales)
+**Espacial:** O(N) - Conversión a char[][]
 
-### **Optimizaciones Implementadas:**
+### **Métricas de Performance:**
 
-1. ✅ **Early Termination:** Retorna `true` apenas encuentra 2 secuencias
-2. ✅ **Char[][] Conversion:** Acceso O(1) en lugar de O(N) con strings
-3. ✅ **Boundary Checking:** Verifica límites ANTES de buscar secuencias
-4. ✅ **Direct Comparison:** Sin loops internos en verificaciones
-5. ✅ **Validation Set O(1):** Usa `Set.of('A','T','C','G')` para validación constante
+#### **Tiempos de Ejecución:**
+```
+Tamaño       Tiempo Avg (ms)
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+6x6          0.010
+10x10        0.012
+50x50        0.061
+100x100      0.094
+500x500      0.533
+1000x1000    1.842
+```
+
+#### **Throughput:**
+- **>4 millones** de operaciones/segundo en matrices pequeñas
+- **>50,000** ops/seg en matrices 100x100
 
 ---
 
 ## 📊 Cobertura de Código
 
-### **Ejecutar Reporte de Cobertura:**
-```bash
-./gradlew test jacocoTestReport
-# Abrir: build/reports/jacoco/test/html/index.html
-```
-
 ### **Resultados de Cobertura:**
 
-| Paquete | Cobertura Instrucciones | Cobertura Ramas | Evaluación |
-|---------|------------------------|-----------------|------------|
-| **org.example.controller** | 100% 🟢 | 100% 🟢 | ✅ PERFECTO |
-| **org.example.service** | 94% 🟢 | 90% 🟢 | ✅ EXCELENTE |
-| **org.example.validation** | 93% 🟢 | 85% 🟢 | ✅ EXCELENTE |
-| **org.example.exception** | 40% 🟡 | n/a | ⚠️ Normal (solo constructores) |
-| **org.example.entity** | 41% 🟡 | n/a | ⚠️ Normal (Lombok generado) |
-| **org.example.dto** | 15% 🟡 | 0% | ⚠️ Normal (Lombok generado) |
-| **TOTAL** | **58%** 🟢 | **56%** 🟢 | ✅ APROBADO |
-
-### **Análisis:**
-- ✅ **Código crítico cubierto:** Controller (100%), Service (94%)
-- ⚠️ **Código generado:** DTOs y Entities tienen baja cobertura porque Lombok genera automáticamente getters/setters
-- ✅ **Algoritmo core:** >90% de cobertura en MutantDetector
+| Paquete | Cobertura | Estado |
+|---------|-----------|--------|
+| **controller** | 100% | ✅ PERFECTO |
+| **service** | 94% | ✅ EXCELENTE |
+| **validation** | 93% | ✅ EXCELENTE |
+| **exception** | 40% | ⚠️ Normal (constructores) |
+| **entity** | 41% | ⚠️ Normal (Lombok) |
+| **dto** | 15% | ⚠️ Normal (Lombok) |
+| **TOTAL** | **58%** | ✅ APROBADO |
 
 ---
 
 ## 🏗️ Arquitectura
 
 El proyecto sigue una arquitectura en capas:
-
 ```
-src/main/java/org/example/
-├── controller/          # Capa de presentación
-│   └── MutantController.java
-├── dto/                 # Objetos de transferencia
-│   ├── DnaRequest.java
-│   ├── StatsResponse.java
-│   └── ErrorResponse.java
-├── entity/              # Entidades JPA
-│   └── DnaRecord.java
-├── repository/          # Capa de persistencia
-│   └── DnaRecordRepository.java
-├── service/             # Lógica de negocio
-│   ├── MutantDetector.java      (Algoritmo core)
-│   ├── MutantService.java
-│   └── StatsService.java
-├── validation/          # Validadores personalizados
-│   ├── ValidDnaSequence.java
-│   └── DnaSequenceValidator.java
-├── exception/           # Manejo de excepciones
-│   ├── GlobalExceptionHandler.java
-│   └── DnaHashCalculationException.java
-└── config/              # Configuración
-    └── SwaggerConfig.java
+┌─────────────────────────────────────┐
+│         Controller Layer            │  ← API REST Endpoints
+│     (MutantController)              │
+└────────────┬────────────────────────┘
+             │
+┌────────────▼────────────────────────┐
+│         Service Layer                │  ← Lógica de Negocio
+│  (MutantService, StatsService)      │
+│  (MutantDetector)                    │
+└────────────┬────────────────────────┘
+             │
+┌────────────▼────────────────────────┐
+│       Repository Layer               │  ← Acceso a Datos
+│   (DnaRecordRepository)              │
+└────────────┬────────────────────────┘
+             │
+┌────────────▼────────────────────────┐
+│         Database Layer               │  ← H2 Database
+│        (DNA_RECORD)                  │
+└─────────────────────────────────────┘
 ```
 
 ### **Patrones Implementados:**
 
-- ✅ **Repository Pattern:** Abstracción de acceso a datos
-- ✅ **DTO Pattern:** Separación de capas
-- ✅ **Service Layer:** Lógica de negocio centralizada
-- ✅ **Custom Validator:** Validación de entrada
-- ✅ **Global Exception Handler:** Manejo centralizado de errores
-- ✅ **Dependency Injection:** Inversión de control con Spring
+- ✅ **Repository Pattern** - Abstracción de acceso a datos
+- ✅ **DTO Pattern** - Separación de capas
+- ✅ **Service Layer** - Lógica de negocio centralizada
+- ✅ **Custom Validator** - Validación de entrada
+- ✅ **Global Exception Handler** - Manejo centralizado de errores
+- ✅ **Dependency Injection** - Inversión de control con Spring
+
+---
+
+## 📁 Estructura del Proyecto
+```
+mutantes/
+├── src/
+│   ├── main/
+│   │   ├── java/org/example/
+│   │   │   ├── config/
+│   │   │   │   ├── SwaggerConfig.java
+│   │   │   │   └── GlobalExceptionHandler.java
+│   │   │   ├── controller/
+│   │   │   │   └── MutantController.java
+│   │   │   ├── dto/
+│   │   │   │   ├── AnalysisResult.java
+│   │   │   │   ├── DnaRequest.java
+│   │   │   │   ├── ErrorResponse.java
+│   │   │   │   └── StatsResponse.java
+│   │   │   ├── entity/
+│   │   │   │   └── DnaRecord.java
+│   │   │   ├── exception/
+│   │   │   │   └── DnaHashCalculationException.java
+│   │   │   ├── repository/
+│   │   │   │   └── DnaRecordRepository.java
+│   │   │   ├── service/
+│   │   │   │   ├── MutantDetector.java
+│   │   │   │   ├── MutantService.java
+│   │   │   │   └── StatsService.java
+│   │   │   ├── validation/
+│   │   │   │   ├── ValidDnaSequence.java
+│   │   │   │   └── ValidDnaSequenceValidator.java
+│   │   │   └── MutantDetectorApplication.java
+│   │   └── resources/
+│   │       └── application.properties
+│   └── test/
+│       └── java/org/example/
+│           ├── controller/
+│           │   └── MutantControllerTest.java
+│           └── service/
+│               ├── AlgorithmMetricsTest.java
+│               ├── MutantDetectorTest.java
+│               ├── MutantServiceTest.java
+│               └── StatsServiceTest.java
+├── .gitignore
+├── build.gradle
+├── Dockerfile
+├── gradlew
+├── gradlew.bat
+├── Procfile
+├── render.yaml
+├── settings.gradle
+├── system.properties
+└── README.md
+```
 
 ---
 
@@ -457,10 +445,10 @@ src/main/java/org/example/
 
 ### **Validación:**
 - **Jakarta Validation** - Validación de beans
-- **Custom Validators** - Validación personalizada
+- **Custom Validators** - Validación personalizada de ADN
 
 ### **Documentación:**
-- **Springdoc OpenAPI 2.2.0** - Swagger UI
+- **Springdoc OpenAPI 2.3.0** - Swagger UI
 
 ### **Testing:**
 - **JUnit 5** - Framework de tests
@@ -472,13 +460,17 @@ src/main/java/org/example/
 - **Lombok** - Reducción de boilerplate
 - **Gradle 8.8** - Build tool
 
+### **Deploy:**
+- **Docker** - Containerización
+- **Render** - Hosting cloud
+
 ---
 
 ## 💡 Ejemplos de Uso
 
 ### **Ejemplo 1: Verificar un Mutante (cURL)**
 ```bash
-curl -X POST http://localhost:8080/mutant \
+curl -X POST https://mutantes-api-v2.onrender.com/mutant \
   -H "Content-Type: application/json" \
   -d '{
     "dna": [
@@ -491,11 +483,18 @@ curl -X POST http://localhost:8080/mutant \
     ]
   }'
 ```
-**Respuesta:** `200 OK` (sin body)
+**Respuesta:** `200 OK`
+```json
+{
+  "result": "mutant"
+}
+```
+
+---
 
 ### **Ejemplo 2: Verificar un Humano (cURL)**
 ```bash
-curl -X POST http://localhost:8080/mutant \
+curl -X POST https://mutantes-api-v2.onrender.com/mutant \
   -H "Content-Type: application/json" \
   -d '{
     "dna": [
@@ -506,11 +505,18 @@ curl -X POST http://localhost:8080/mutant \
     ]
   }'
 ```
-**Respuesta:** `403 Forbidden` (sin body)
+**Respuesta:** `403 Forbidden`
+```json
+{
+  "result": "human"
+}
+```
+
+---
 
 ### **Ejemplo 3: DNA Inválido (cURL)**
 ```bash
-curl -X POST http://localhost:8080/mutant \
+curl -X POST https://mutantes-api-v2.onrender.com/mutant \
   -H "Content-Type: application/json" \
   -d '{
     "dna": [
@@ -524,7 +530,7 @@ curl -X POST http://localhost:8080/mutant \
 **Respuesta:** `400 Bad Request`
 ```json
 {
-  "timestamp": "2025-11-11T15:30:00",
+  "timestamp": "2025-11-16T15:30:00",
   "status": 400,
   "error": "Bad Request",
   "message": "Invalid DNA sequence: must be a square NxN matrix (minimum 4x4) with only A, T, C, G characters",
@@ -532,27 +538,73 @@ curl -X POST http://localhost:8080/mutant \
 }
 ```
 
+---
+
 ### **Ejemplo 4: Obtener Estadísticas (cURL)**
 ```bash
-curl http://localhost:8080/stats
+curl https://mutantes-api-v2.onrender.com/stats
 ```
 **Respuesta:** `200 OK`
 ```json
 {
-  "count_mutant_dna": 3,
-  "count_human_dna": 2,
-  "ratio": 1.5
+  "count_mutant_dna": 40,
+  "count_human_dna": 100,
+  "ratio": 0.4
 }
 ```
 
+---
+
 ### **Ejemplo 5: Usando Swagger UI**
 
-1. Abrir: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+1. Abrir: [https://mutantes-api-v2.onrender.com/swagger-ui.html](https://mutantes-api-v2.onrender.com/swagger-ui.html)
 2. Expandir endpoint **POST /mutant**
 3. Click en **"Try it out"**
-4. Ingresar JSON de ejemplo
+4. Ingresar JSON de ejemplo:
+```json
+{
+  "dna": [
+    "ATGCGA",
+    "CAGTGC",
+    "TTATGT",
+    "AGAAGG",
+    "CCCCTA",
+    "TCACTG"
+  ]
+}
+```
 5. Click en **"Execute"**
 6. Ver resultado
+
+---
+
+## 🚀 Deploy en Render
+
+### **Configuración del Servicio:**
+
+**Runtime:** Docker  
+**Region:** Frankfurt (EU Central)  
+**Build Command:** `./gradlew build -x test`  
+**Start Command:** `java -jar build/libs/inicial1-0.0.1-SNAPSHOT.jar`
+
+### **Variables de Entorno:**
+- `JAVA_VERSION=21`
+- `SPRING_PROFILES_ACTIVE=prod`
+
+### **Dockerfile Multi-Stage:**
+```dockerfile
+# Build stage
+FROM eclipse-temurin:21-jdk-alpine as build
+COPY . .
+RUN chmod +x ./gradlew
+RUN ./gradlew bootJar --no-daemon
+
+# Runtime stage
+FROM eclipse-temurin:21-jre-alpine
+EXPOSE 8080
+COPY --from=build ./build/libs/inicial1-0.0.1-SNAPSHOT.jar ./app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
 
 ---
 
@@ -566,57 +618,13 @@ curl http://localhost:8080/stats
 4. ✅ Todas las filas deben tener la misma longitud
 5. ✅ No puede ser null o vacío
 
-### **Ejemplos de DNA Válido:**
-```json
-✅ ["AAAA", "TTTT", "CCCC", "GGGG"]           // 4x4 mínimo
-✅ ["ATGCGA", "CAGTGC", "TTATGT", 
-    "AGAAGG", "CCCCTA", "TCACTG"]            // 6x6
-✅ Matrices de cualquier tamaño ≥ 4
-```
-
-### **Ejemplos de DNA Inválido:**
-```json
-❌ ["ATG", "CAG", "TTA"]                      // Menor a 4x4
-❌ ["ATGC", "CAG", "TTAT", "AGAC"]           // No cuadrada
-❌ ["ATXC", "CAGT", "TTAT", "AGAC"]          // Carácter inválido (X)
-❌ ["ATGC", "CAGT", "TTAT"]                  // Falta una fila
-❌ null                                       // Null
-❌ []                                         // Vacío
-```
-
----
-
-## 🚀 Despliegue
-
-### **Construir JAR:**
-```bash
-./gradlew build
-```
-El JAR se generará en: `build/libs/inicial1-0.0.1-SNAPSHOT.jar`
-
-### **Ejecutar JAR:**
-```bash
-java -jar build/libs/inicial1-0.0.1-SNAPSHOT.jar
-```
-
-### **Variables de Entorno:**
-```bash
-# Puerto (default: 8080)
-SERVER_PORT=8080
-
-# Base de datos H2
-SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-SPRING_DATASOURCE_USERNAME=sa
-SPRING_DATASOURCE_PASSWORD=
-```
-
 ---
 
 ## 📞 Contacto
 
-**Autor:** Mariano Lopez Tubaro 
-**Email:** mariagu04@outlook.com.ar 
-**GitHub:** https://github.com/Mariano251
+**Autor:** Mariano Cortez  
+**GitHub:** [https://github.com/Mariano251](https://github.com/Mariano251)  
+**Repositorio:** [https://github.com/Mariano251/mutantes](https://github.com/Mariano251/mutantes)
 
 ---
 
@@ -630,21 +638,22 @@ Este proyecto está bajo la Licencia MIT.
 
 Proyecto desarrollado como parte del curso de Programación III.
 
-**Universidad:** [Universidad Tecnologica Nacional]  
-**Profesor:** [Alberto Cortez]  
 **Año:** 2025
 
 ---
 
-## 📚 Referencias
+## 🔗 Enlaces Útiles
 
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Swagger/OpenAPI Specification](https://swagger.io/specification/)
-- [H2 Database Documentation](https://www.h2database.com/)
-- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- **API Producción:** [https://mutantes-api-v2.onrender.com](https://mutantes-api-v2.onrender.com)
+- **Swagger UI:** [https://mutantes-api-v2.onrender.com/swagger-ui.html](https://mutantes-api-v2.onrender.com/swagger-ui.html)
+- **Stats Endpoint:** [https://mutantes-api-v2.onrender.com/stats](https://mutantes-api-v2.onrender.com/stats)
+- **GitHub Repo:** [https://github.com/Mariano251/mutantes](https://github.com/Mariano251/mutantes)
+- **Render Dashboard:** [https://dashboard.render.com](https://dashboard.render.com)
 
 ---
 
 **Última actualización:** Noviembre 2025
 
 ---
+
+✨ **Proyecto 100% Funcional y Desplegado** ✨
