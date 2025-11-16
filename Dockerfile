@@ -1,26 +1,29 @@
-# Usar imagen base de Java 21
-FROM eclipse-temurin:21-jdk-alpine
+# ========================================
+# ETAPA 1: BUILD (Compilación)
+# ========================================
+# Usar una imagen de Temurin con el JDK completo para compilar
+FROM eclipse-temurin:21-jdk-alpine as build
 
-# Directorio de trabajo
-WORKDIR /app
+# Copiar TODO el código fuente del proyecto al contenedor
+COPY . .
 
-# Copiar archivos de Gradle
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+# Dar permisos de ejecución al script gradlew (Gradle Wrapper)
+RUN chmod +x ./gradlew
 
-# Copiar código fuente
-COPY src src
+# Ejecutar Gradle para compilar y generar el JAR ejecutable
+RUN ./gradlew bootJar --no-daemon
 
-# Dar permisos de ejecución a gradlew
-RUN chmod +x gradlew
+# ========================================
+# ETAPA 2: RUNTIME (Ejecución)
+# ========================================
+# Usar una imagen de Temurin con solo el JRE para ejecutar (más ligera)
+FROM eclipse-temurin:21-jre-alpine
 
-# Construir la aplicación (sin tests para acelerar)
-RUN ./gradlew build -x test
-
-# Exponer el puerto
+# Documentar que la aplicación escucha en el puerto 8080
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-CMD ["java", "-jar", "build/libs/inicial1-0.0.1-SNAPSHOT.jar"]
+# Copiar el JAR generado en la ETAPA 1 (build) a la imagen final
+COPY --from=build ./build/libs/inicial1-0.0.1-SNAPSHOT.jar ./app.jar
+
+# Comando que se ejecuta cuando el contenedor inicia
+ENTRYPOINT ["java", "-jar", "app.jar"]
