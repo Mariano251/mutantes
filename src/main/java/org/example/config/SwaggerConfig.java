@@ -56,7 +56,7 @@ public class SwaggerConfig {
                                 .url("http://localhost:8080")
                                 .description("Servidor de desarrollo local"),
                         new Server()
-                                .url("https://mutantes-api.render.com")
+                                .url("https://mutantes-api-v2.onrender.com")
                                 .description("Servidor de producción (Render)")
                 ));
     }
